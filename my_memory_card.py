@@ -1,160 +1,163 @@
-#подключение библиотек
-from random import shuffle
+from PyQt5.QtWidgets import (
+    QApplication, QWidget,
+    QFileDialog, # Диалог открытия файлов (и папок)
+    QLabel, QPushButton, QListWidget,
+    QHBoxLayout, QVBoxLayout
+)
+import os
+
+from PIL import Image, ImageFilter
+
+from PyQt5.QtGui import QPixmap
+
+
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QVBoxLayout, QPushButton, QHBoxLayout, QMessageBox, QRadioButton, QGroupBox, QButtonGroup
-#создание приложения и главного окна
-class Question():
-    def __init__(
-    self, queastion, right_answer,
-    wrong1, wrong2, wrong3):
-        self.queastion = queastion
-        self.right_answer = right_answer
-        self.wrong1 = wrong1
-        self.wrong2 = wrong2
-        self.wrong3 = wrong3
-
-total  = 0
-right = 0
-
-queastions = []
-queastions.append(Question('В каком году Mr Beast Создал канал', '2012', '2013', '2011', '2009'))
-
-queastions.append(Question('Кто во время ухаживания кусают друг друга?', 
-                            'синие акулы', 
-                            'лангусты', 
-                            'ленивцы', 
-                            'кошки'))
-queastions.append(Question('О чем речь? \n эта станция метро была построена в столице Украины в Киевеи считается самой глубокой в мире (105,5)', 
-                            'Арсенальная', 
-                            'бигест', 'морская', 'станция 546'))
-queastions.append(Question('в каком году в Польше были выпущены коллекционные монеты с изображением героев советского мультфильма `Ну, погоди`', 
-                            '2010', '1458', '2019', '2018'))
-queastions.append(Question('где в средневековье подавали пиво на завтрак?', 'Англия', 'Нигер', 'Китай', 'Норвегия'))
 
 app = QApplication([])
-main_win = QWidget()
-main_win.resize(500,125)
-#создание виджетов главного окна
-main_win.setWindowTitle('Конкурс от Crazy people')
-box = QGroupBox()
-box_answer = QGroupBox()
-layout_box = QVBoxLayout()
-answer_text = QLabel('Прав ты или нет?')
-layout_box.addWidget(answer_text, alignment = Qt.AlignCenter)
-box_answer.setLayout(layout_box)
+window = QWidget()
+window.resize(700, 500)
+window.setWindowTitle('Редактор')
+# Виджеты для редактора
+label = QLabel('Картинка')
+btn_folder = QPushButton('Папка')
+btn_bw = QPushButton('Ч/Б') # Кнопка черно-белого режима
+btn_left = QPushButton('Лево')
+btn_right = QPushButton('Право')
+btn_mirror = QPushButton('Зеркало')
+btn_sharpness = QPushButton('Резкость (-)')
+btn_blur = QPushButton('Размытость')
+list_pic = QListWidget()
+# Создаём лэйауты
+main_h_layout = QHBoxLayout()
+v1 = QVBoxLayout()
+v2 = QVBoxLayout()
+h_btns_layout = QHBoxLayout()
+# Размещение кнопок на лэйаут
+h_btns_layout.addWidget(btn_left)
+h_btns_layout.addWidget(btn_blur)
+h_btns_layout.addWidget(btn_right)
+h_btns_layout.addWidget(btn_mirror)
+h_btns_layout.addWidget(btn_sharpness)
+h_btns_layout.addWidget(btn_bw)
+# Размещение списка фоток и кнопки "Папка"
+v1.addWidget(btn_folder)
+v1.addWidget(list_pic)
+# Добавляем ко второму вертикальному лэйауту v2 надпись "Картинка" и 
+# список кнопок 
+v2.addWidget(label, 95)
+v2.addLayout(h_btns_layout)
+# Добавляем к основному лэйауту побочные вертикальные v1, v2
+main_h_layout.addLayout(v1, 20)
+main_h_layout.addLayout(v2, 80)
+# Добавляем к окну window наш главный лэйаут
+window.setLayout(main_h_layout)
+window.show()
 
-queastion = QLabel ('В каком году Mr Beast Создал канал')
-groop_btn = QButtonGroup()
-btn_answer1 = QRadioButton('2012')
-btn_answer2 = QRadioButton('2014')
-btn_answer3 = QRadioButton('2015')
-btn_answer4 = QRadioButton('2009')
-btn_list = [btn_answer1,btn_answer2,btn_answer3,btn_answer4]
+directory = ''
 
+class ImageProcessor():
+    def __init__(self):
+        self.filename = None
+        self.image = None
+        self.dir = None
+        self.save_dir = 'changed/'
+    def loadImage(self, filename):
+        self.filename = filename
+        image_path = os.path.join(directory, filename)
+        self.image = Image.open(image_path)
 
+    def showImage(self, path):
+        label.hide()
+        pixmapimage = QPixmap(path)
+        w, h = label.width(), label.height()
+        pixmapimage = pixmapimage.scaled(w, h, Qt.KeepAspectRatio)
+        label.setPixmap(pixmapimage)
+        label.show()
 
-groop_btn.addButton(btn_answer1)
-groop_btn.addButton(btn_answer2)
-groop_btn.addButton(btn_answer3)
-groop_btn.addButton(btn_answer4)
-Layout_main = QVBoxLayout()
-
-Layout_h1 = QHBoxLayout()
-Layout_h2 = QHBoxLayout()
-
-
-
-
-
-# btn_answer4.clicked.connect(show_win)
-# btn_answer1.clicked.connect(show_looser)
-# btn_answer2.clicked.connect(show_looser)
-# btn_answer3.clicked.connect(show_looser)
-
-Layout_main.addWidget(queastion, alignment = Qt.AlignCenter)
-Layout_h1.addWidget(btn_answer1, alignment = Qt.AlignCenter)
-Layout_h1.addWidget(btn_answer2, alignment = Qt.AlignCenter)
-Layout_h2.addWidget(btn_answer3,alignment = Qt.AlignCenter)
-Layout_h2.addWidget(btn_answer4, alignment = Qt.AlignCenter)
-LayoutW1 = QVBoxLayout()
-# LayoutW1.addLayout(Layout_h1)
-LayoutW1.addLayout(Layout_h1)
-LayoutW1.addLayout(Layout_h2)
-box.setLayout(LayoutW1)
-# box.setLayout(Layout_h3)
-btn = QPushButton('ОТВЕТИТЬ')
-
-Layout_main.addWidget(box)
-Layout_main.addWidget(box_answer)
-box_answer.hide()
-
-Layout_main.addWidget(btn, stretch = 2)
-main_win.setLayout(Layout_main)
-
-#расположение виджетов по лэйаутам
-
-#обработка нажатий на переключатели
-def ask(q: Question):
-
-    shuffle(btn_list)
-    btn_list[0].setText(q.right_answer)
-    btn_list[1].setText(q.wrong1)
-    btn_list[2].setText(q.wrong2)
-    btn_list[3].setText(q.wrong3)
-    answer_text.setText(q.right_answer)
-    queastion.setText(q.queastion)
-    show_qestion()
-
-def show_result(result):
-    answer_text.setText(result)
-    show_answer()
-
-def check_answer():
-    if btn_list[0].isChecked():
-        global right
-        show_result('Правильно!')
-        right+=1
-    else:
-        if btn_list[1].isChecked() or btn_list[2].isChecked() or btn_list[3].isChecked():
-
-            show_result('неправильно!')
-current_q = 0
-def next_question():
-    global current_q, total
-    total+=1
+    def saveImage(self):
+        path = os.path.join(directory,self.save_dir)
+        if not(os.path.exists(path) or os.path.isdir(path)):
+            os.mkdir(path)
+        image_path = os.path.join(path, self.filename)
+        self.image.save(image_path)
     
-    print('statistic:')
-    print('total qestion:', total)
-    print('correct answers:',right)
-    print('rating', (right/total)*100,'%')
-    current_q += 1
-    if current_q > len(queastions):
-        current_q = 0
-    q = queastions[current_q]
-    ask(q)
+    def do_bw(self):
+        self.image = self.image.convert('L')
+        self.saveImage()
+        image_path = os.path.join(directory, self.save_dir, self.filename)
+        self.showImage(image_path)
+        print('Сделана картинка чб')
 
-def show_answer():
-    box.hide()
-    box_answer.show()
-    btn.setText('След. вопрос')
+    def miror(self):
+        self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
+        self.saveImage()
+        image_path = os.path.join(directory, self.save_dir, self.filename)
+        self.showImage(image_path)
 
-def show_qestion():
-    box.show()
-    box_answer.hide()
-    btn.setText('ОТВЕТИТЬ')
-    groop_btn.setExclusive(False)
-    btn_answer1.setChecked(False)
-    btn_answer2.setChecked(False)
-    btn_answer3.setChecked(False)
-    btn_answer4.setChecked(False)
-    groop_btn.setExclusive(True)
+    def blur(self):
+        self.image = self.image.filter(ImageFilter.BLUR)
+        self.saveImage()
+        image_path = os.path.join(directory, self.save_dir, self.filename)
+        self.showImage(image_path)
 
-def change():
-    if btn.text() == 'ОТВЕТИТЬ':
-        check_answer()
-    else:
-        next_question()
-#отображение окна приложения 
-btn.clicked.connect(change)
-main_win.show()
+    def sharpen(self):
+        self.image = self.image.filter(ImageFilter.SHARPEN)
+        self.saveImage()
+        image_path = os.path.join(directory, self.save_dir, self.filename)
+        self.showImage(image_path)
+
+    def left(self):
+        self.image = self.image.transpose(Image.ROTATE_90)
+        self.saveImage()
+        image_path = os.path.join(directory, self.save_dir, self.filename)
+        self.showImage(image_path)
+
+
+    def right(self):
+        self.image = self.image.transpose(Image.ROTATE_270)
+        self.saveImage()
+        image_path = os.path.join(directory, self.save_dir, self.filename)
+        self.showImage(image_path)
+
+
+workdir = ImageProcessor()
+
+def showChosenImage():
+    if list_pic.currentRow() >= 0:
+        filename = list_pic.currentItem().text()
+        workdir.loadImage(filename)
+        image_path = os.path.join(directory, workdir.filename)
+        workdir.showImage(image_path)
+
+def filter(files, extensions):
+    result = []
+    for filename in files:
+        for ext in extensions:
+            if filename.endswith(ext):
+                result.append(filename)
+    return result
+
+def chooseWorkDir():
+    global directory
+    directory = QFileDialog.getExistingDirectory()
+
+def showFilenamesList():
+    extensions = ['.jpg','.jpeg', '.png', '.gif', '.bmp']
+    chooseWorkDir()
+
+    filenames = filter(os.listdir(directory), extensions)
+
+    
+    list_pic.clear()
+    for file in filenames:
+        list_pic.addItem(file)
+    
+btn_folder.clicked.connect(showFilenamesList)
+list_pic.currentRowChanged.connect(showChosenImage)
+btn_bw.clicked.connect(workdir.do_bw)
+btn_mirror.clicked.connect(workdir.miror)
+btn_blur.clicked.connect(workdir.blur)
+btn_left.clicked.connect(workdir.left)
+btn_right.clicked.connect(workdir.right)
+btn_sharpness.clicked.connect(workdir.sharpen)
 app.exec_()
